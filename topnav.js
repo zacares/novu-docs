@@ -1,7 +1,8 @@
 const topNavLinks = [
     { label: "Pricing", url: "https://novu.co/pricing/?utm_campaign=docs_top_nav" },
     { label: "Blog", url: "https://novu.co/blog/?utm_campaign=docs_top_nav" },
-    { label: "Contact us", url: "https://novu.co/contact-us/?utm_campaign=docs_top_nav" }
+    { label: "Contact us", url: "https://novu.co/contact-us/?utm_campaign=docs_top_nav" },
+    { label: "Get help", url:"https://docs.novu.co/help/overview"}
 ];
 
 const topNavCta = { label: "Get Started", url: "https://web.novu.co?utm_campaign=docs_top_bar_gs" };
