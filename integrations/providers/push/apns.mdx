@@ -24,71 +24,6 @@ You also need the following to connect to APNs:
 2. **Team ID** - This is available in your Apple developer account.
 3. **Bundle ID** - This is the ID of your app. You can find it in the app info section of your Apple developer account.
 
-The overrides field supports all [Notification payload](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification?language=objc) values, as shown below:
-
-```jsx
-import { Novu } from "@novu/node";
-
-const novu = new Novu("<NOVU_API_KEY>");
-
-novu.trigger("<WORKFLOW_TRIGGER_IDENTIFIER>", {
-  to: {
-    subscriberId: "<SUBSCRIBER_ID>",
-  },
-  payload: {
-    abc: "def", // If the notification is a data notification, the payload will be sent as the data
-  },
-  overrides: {
-    apns: {
-      payload: {
-        aps: {
-          notification: {
-            title: "Test",
-            body: "Test push",
-          },
-          data: {
-            key: "value",
-          },
-        },
-      },
-    },
-  },
-});
-```
-
-```jsx
-import { Novu } from "@novu/node";
-
-const novu = new Novu("<NOVU_API_KEY>");
-
-novu.trigger("<WORKFLOW_TRIGGER_IDENTIFIER>", {
-  to: {
-    subscriberId: "<SUBSCRIBER_ID>",
-  },
-  payload: {
-    key1: "val1",
-    key2: "val2", // If the notification is a data notification, the payload will be sent as the data
-  },
-  overrides: {
-    type: "data",
-    apns: {
-      headers: {
-        "apns-priority": "5",
-      },
-      payload: {
-        aps: {
-          alert: {
-            "loc-key": "GAME_PLAY_REQUEST_FORMAT",
-            "loc-args": ["Shelly", "Rick"],
-          },
-          sound: "demo.wav",
-        },
-      },
-    },
-  },
-});
-```
-
 Before triggering the notification to a subscriber(user) with push as a step in the workflow, make sure you have added the subscriber's device token as follows:
 
 <Tabs>
@@ -102,10 +37,10 @@ import {
 const novu = new Novu("<NOVU_API_KEY>");
 
 await novu.subscribers.setCredentials('subscriberId', PushProviderIdEnum.APNS, {
-deviceTokens: ['token1', 'token2'],
+  deviceTokens: ['token1', 'token2'],
 });
 
-````
+```
   </Tab>
   <Tab title="cURL">
 ```bash
@@ -118,9 +53,123 @@ curl -L -X PUT 'https://api.novu.co/v1/subscribers/<SUBSCRIBER_ID>/credentials' 
   "deviceTokens": ["token1", "token2"],
   "integrationIdentifier": "apns-MnGLxp8uy"
 }'
-````
+```
 
   </Tab>
 </Tabs>
 
 Checkout the [API reference](/api-reference/subscribers/update-subscriber-credentials) for more details.
+
+## SDK Provider Overrides
+
+Novu allows you to leverage all of the custom SDK parameters that Expo SDK provides. Here is the full list of supported overrides.
+
+```typescript
+await step.push('push-step', () => {
+  return {
+    body: 'Email body'
+  }
+}, {
+  providers: {
+    apns: ({ controls }) => {
+      return {
+        priority: 5
+      }
+    }
+  }
+});
+```
+
+<ResponseField name="topic" type="string" required={false}>
+  The destination topic for the notification.
+</ResponseField>
+<ResponseField name="id" type="string" required={false}>
+  A UUID to identify the notification with APNS. If an id is not supplied, APNS will generate one automatically. If an error occurs the response will contain the id. This property populates the apns-id header.
+</ResponseField>
+<ResponseField name="expiry" type="number" required={false}>
+  A UNIX timestamp when the notification should expire. If the notification cannot be delivered to the device, APNS will retry until it expires. An expiry of 0 indicates that the notification expires immediately, therefore no retries will be attempted.
+</ResponseField>
+<ResponseField name="priority" type="number" required={false}>
+  Provide one of the following values:
+  <ul>
+    <li>10 - The push notification is sent to the device immediately. (Default)</li>
+    <li>5 - The push message is sent at a time that conserves power on the device receiving it.</li>
+  </ul>
+</ResponseField>
+<ResponseField name="collapseId" type="string" required={false} />
+<ResponseField name="pushType" type="string" required={false}>
+  The type of the notification. The value of this header is alert or background. Specify alert when the delivery of your notification displays an alert, plays a sound, or badges your app's icon. Specify background for silent notifications that do not interact with the user.
+</ResponseField>
+<ResponseField name="threadId" type="string" required={false} />
+<ResponseField name="payload" type="object" required={false} additionalProperties={true} />
+<ResponseField name="aps" type="object" required={false}>
+  <Expandable title="properties">
+    <ResponseField name="badge" type="number" required={false} />
+    <ResponseField name="sound" type="anyOf" required={false}>
+      <Expandable title="anyOf">
+        <ResponseField name="string" type="string" required={false} />
+        <ResponseField name="object" type="object" required={false} additionalProperties={true}>
+          <Expandable title="properties">
+            <ResponseField name="name" type="string" required={true} />
+            <ResponseField name="volume" type="number" required={true} />
+            <ResponseField name="critical" type="number" required={true} />
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="category" type="string" required={false} />
+    <ResponseField name="content-available" type="number" required={false} />
+    <ResponseField name="launch-image" type="number" required={false} />
+    <ResponseField name="mutable-content" type="number" required={false} />
+    <ResponseField name="url-args" type="array" required={false}>
+      <ResponseField name="items" type="string" required={false} />
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="rawPayload" type="object" required={false} additionalProperties={true} />
+<ResponseField name="badge" type="number" required={false} />
+<ResponseField name="sound" type="anyOf" required={false}>
+  <Expandable title="anyOf">
+    <ResponseField name="string" type="string" required={false} />
+    <ResponseField name="object" type="object" required={false} additionalProperties={true}>
+      <Expandable title="properties">
+        <ResponseField name="name" type="string" required={true} />
+        <ResponseField name="volume" type="number" required={true} />
+        <ResponseField name="critical" type="number" required={true} />
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="alert" type="anyOf" required={false}>
+  <Expandable title="anyOf">
+    <ResponseField name="string" type="string" required={false} />
+    <ResponseField name="object" type="object" required={false} additionalProperties={true}>
+      <Expandable title="properties">
+        <ResponseField name="title" type="string" required={false} />
+        <ResponseField name="body" type="string" required={true} />
+        <ResponseField name="subtitle" type="string" required={false} />
+        <ResponseField name="title-loc-key" type="string" required={false} />
+        <ResponseField name="title-loc-args" type="array" required={false}>
+          <ResponseField name="items" type="string" required={false} />
+        </ResponseField>
+        <ResponseField name="action-loc-key" type="string" required={false} />
+        <ResponseField name="loc-key" type="string" required={false} />
+        <ResponseField name="loc-args" type="array" required={false}>
+          <ResponseField name="items" type="string" required={false} />
+        </ResponseField>
+        <ResponseField name="launch-image" type="string" required={false} />
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="contentAvailable" type="boolean" required={false} />
+<ResponseField name="mutableContent" type="boolean" required={false} />
+<ResponseField name="mdm" type="anyOf" required={false}>
+  <Expandable title="anyOf">
+    <ResponseField name="string" type="string" required={false} />
+    <ResponseField name="object" type="object" required={false} additionalProperties={true} />
+  </Expandable>
+</ResponseField>
+<ResponseField name="urlArgs" type="array" required={false}>
+  <ResponseField name="items" type="string" required={false} />
+</ResponseField>
