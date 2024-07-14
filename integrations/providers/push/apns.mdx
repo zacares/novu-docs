@@ -62,12 +62,12 @@ Checkout the [API reference](/api-reference/subscribers/update-subscriber-creden
 
 ## SDK Provider Overrides
 
-Novu allows you to leverage all of the custom SDK parameters that Expo SDK provides. Here is the full list of supported overrides.
+Novu allows you to leverage all of the custom SDK parameters that APNS SDK provides. Here is the full list of supported overrides.
 
 ```typescript
 await step.push('push-step', () => {
   return {
-    body: 'Email body'
+    body: 'Push body'
   }
 }, {
   providers: {
