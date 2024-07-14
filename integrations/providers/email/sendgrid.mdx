@@ -1,13 +1,13 @@
 ---
-title: "SendGrid"
-description: "Learn how to use the Sendgrid provider to send email notifications using Novu"
+title: "How to use the SendGrid to send email notifications using Novu"
+sidebarTitle: "SendGrid"
 ---
 
 You can use the [SendGrid](https://sendgrid.com/) provider to send transactional emails to your customers using the Novu Platform with a single API to create multi-channel experiences.
 
 ## Getting Started
 
-To use the Sendgrid provider in the email channel, you will need to create a Sendgrid account and add your API key to the SendGrid integration on the Novu platform.
+To use the Sendgrid provider in the email channel, you will need to create a SendGrid account and add your API key to the SendGrid integration on the Novu platform.
 
 ## Generating an API Key
 
@@ -21,7 +21,7 @@ To generate a new API key in SendGrid, follow these steps:
 - (Optional) Template Engine - Read Only
 - Click the **Create & View** button to generate the API key. The key will be displayed on the screen, but you will only be able to view it once, so make sure to save it in a safe place.
 
-NOTE
+### API Key access-level
 
 The access level of the key will determine what actions the API Key can take, so please choose the correct one.
 
@@ -37,7 +37,7 @@ SendGrid allows you to authenticate your sender identity using one of the follow
 - [Single Sender Verification](https://docs.sendgrid.com/ui/sending-email/sender-verification) - This is the easiest way to authenticate your sender identity.
 - [Entire Domain Authentication](https://docs.sendgrid.com/ui/account-and-settings/how-to-set-up-domain-authentication) - This is recommended if you are sending emails from multiple accounts under your domain.
 
-## SendGrid integration with Novu
+## Add SendGrid to the integration store
 
 - Visit the [Integrations store](https://dashboard.novu.co/integrations?utm_campaign=docs-sendgrid) on the Novu web dashboard.
 - Click on Add a Provider.
@@ -52,96 +52,352 @@ SendGrid allows you to authenticate your sender identity using one of the follow
 
 Novu has its own email editor for writing email template. If you want to use pre made template from SendGrid, you can use `customData` filed of email overrides to send template details. Make sure your `Api Key` has enough permission to read and process the template.
 
-<Info>customData override is available from version 0.21.0</Info>
-
-<Tabs>
-  <Tab title="Node.js">
-```jsx
-import { Novu } from '@novu/node';
-
-const novu = new Novu('<NOVU_API_KEY>');
-
-await novu.subscribers.trigger("workflowIdentifier", {
-to: "subscriberId",
-payload: {},
-overrides: {
-email: {
-customData: {
-// sendgrid template templateId
-templateId: 'sendgrid-template-id',
-// sendgrid template variables
-dynamicTemplateData: {
-total: '$ 239.85',
-items: [{
-text: 'New Line Sneakers',
-image: 'https://marketing-image-production.s3.amazonaws.com/uploads/8dda1131320a6d978b515cc04ed479df259a458d5d45d58b6b381cae0bf9588113e80ef912f69e8c4cc1ef1a0297e8eefdb7b270064cc046b79a44e21b811802.png',
-price: '$ 79.95',
-},
-{
-text: 'Old Line Sneakers rlfjrjrh4hr4rh4',
-image: 'https://marketing-image-production.s3.amazonaws.com/uploads/3629f54390ead663d4eb7c53702e492de63299d7c5f7239efdc693b09b9b28c82c924225dcd8dcb65732d5ca7b7b753c5f17e056405bbd4596e4e63a96ae5018.png',
-price: '$ 79.95',
-},
-],
-receipt: true,
-name: 'Sample Name',
-address01: '1234 Fake St.',
-address02: 'Apt. 123',
-city: 'Place',
-state: 'CO',
-zip: '80202',
-},
-},
-}
-},
-// actorId is subscriberId of actor
-actor: "actorId"
-tenant: "tenantIdentifier"
-});
-
-````
-  </Tab>
-  <Tab title="cURL">
-```bash
-curl --location 'https://api.novu.co/v1/events/trigger' \
---header 'Content-Type: application/json' \
---header 'Accept: application/json' \
---header 'Authorization: ApiKey <NOVU_API_KEY>' \
---data '{
-    "name": "workflowIdentifier",
-    "to":  ["subscriberId"],
-    "payload": {},
-    "overrides": {
-        "email": {
-            "customData": {
-                "templateId": "sendgrid-template-id",
-                "dynamicTemplateData": {
-                    "total": "$ 239.85",
-                    "items": [
-                        {
-                            "text": "New Line Sneakers",
-                            "image": "https://marketing-image-production.s3.amazonaws.com/uploads/8dda1131320a6d978b515cc04ed479df259a458d5d45d58b6b381cae0bf9588113e80ef912f69e8c4cc1ef1a0297e8eefdb7b270064cc046b79a44e21b811802.png",
-                            "price": "$ 79.95"
-                        },
-                        {
-                            "text": "Old Line Sneakers rlfjrjrh4hr4rh4",
-                            "image": "https://marketing-image-production.s3.amazonaws.com/uploads/3629f54390ead663d4eb7c53702e492de63299d7c5f7239efdc693b09b9b28c82c924225dcd8dcb65732d5ca7b7b753c5f17e056405bbd4596e4e63a96ae5018.png",
-                            "price": "$ 79.95"
-                        }
-                    ],
-                    "receipt": true,
-                    "name": "Sample Name",
-                    "address01": "1234 Fake St.",
-                    "address02": "Apt. 123",
-                    "city": "Place",
-                    "state": "CO",
-                    "zip": "80202"
-                }
-            }
-        }
+```typescript
+await step.email('email-step', () => {
+  return {
+    subject: 'Hello World',
+    body: 'Email body'
+  }
+}, {
+  providers: {
+    sendgrid: ({ controls }) => {
+      return {
+        dynamic_template_data: {
+          name: 'John Doe'
+        },
+        template_id: 'SENDGRID_TEMPALTE_ID'
+      }
     }
-}'
-````
+  }
+});
+```
 
-  </Tab>
-</Tabs>
+## SendGrid Provider Overrides
+
+Novu allows you to leverage all of the custom SDK parameters that SendGrid provides. Here is the full list of supported overrides.
+
+To use the provider overrides, you can use the `providers` field in the `email` step.
+
+```typescript
+await step.email('email-step', () => {
+  return {
+    subject: 'Hello World',
+    body: 'Email body'
+  }
+}, {
+  providers: {
+    sendgrid: ({ controls }) => {
+      return {
+        ip_pool_name: 'IP_POOL_NAME'
+      }
+    }
+  }
+});
+```
+
+### Provider Override SDK Reference
+
+<Tip>
+The properties in this list match the [SendGrid API schema](https://www.twilio.com/docs/sendgrid/api-reference/mail-send/mail-send).
+</Tip>
+
+All of the fields in this list are optional, and you can use them to override the default behavior of the SendGrid API.
+
+<ResponseField name="template_id" type="string">
+    An email template ID. A template that contains a subject and content — either text or html — will override any subject and content values specified at the personalizations or message level.
+</ResponseField>
+<ResponseField name="dynamic_template_data" type="object">
+    Dynamic template data is available using Handlebars syntax in Dynamic Transactional Templates. This field should be used in combination with a Dynamic Transactional Template, which can be identified by a `template_id` starting with `d-`. This field is a collection of key/value pairs following the pattern "variable_name":"value to insert".
+</ResponseField>
+<ResponseField name="ip_pool_name" type="string">
+    The IP Pool that you would like to send this email from.
+</ResponseField>
+<ResponseField name="personalizations" type="array">
+    An array of messages and their metadata. Each object within personalizations can be thought of as an envelope - it defines who should receive an individual message and how that message should be handled. See our <a href="https://sendgrid.com/docs/for-developers/sending-email/personalizations/">Personalizations documentation</a> for examples.
+    <Expandable title="items">
+    <ResponseField name="from" type="object">
+        <Expandable title="properties">
+        <ResponseField name="email" type="string">
+            The 'From' email address used to deliver the message. This address should be a verified sender in your Twilio SendGrid account.
+        </ResponseField>
+        <ResponseField name="name" type="string">
+            A name or title associated with the sending email address.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="to" type="array">
+        <Expandable title="items">
+        <ResponseField name="email" type="string">
+            The intended recipient's email address.
+        </ResponseField>
+        <ResponseField name="name" type="string">
+            The intended recipient's name.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="cc" type="array">
+        <Expandable title="items">
+        <ResponseField name="email" type="string">
+            The intended recipient's email address.
+        </ResponseField>
+        <ResponseField name="name" type="string">
+            The intended recipient's name.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="bcc" type="array">
+        <Expandable title="items">
+        <ResponseField name="email" type="string">
+            The intended recipient's email address.
+        </ResponseField>
+        <ResponseField name="name" type="string">
+            The intended recipient's name.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="subject" type="string">
+        The subject of your email. See character length requirements according to <a href="http://stackoverflow.com/questions/1592291/what-is-the-email-subject-length-limit#answer-1592310">RFC 2822</a>.
+    </ResponseField>
+    <ResponseField name="headers" type="object">
+        A collection of JSON key/value pairs allowing you to specify handling instructions for your email. You may not overwrite the following headers: `x-sg-id`, `x-sg-eid`, `received`, `dkim-signature`, `Content-Type`, `Content-Transfer-Encoding`, `To`, `From`, `Subject`, `Reply-To`, `CC`, `BCC`.
+    </ResponseField>
+    <ResponseField name="substitutions" type="object">
+        Substitutions allow you to insert data without using Dynamic Transactional Templates. This field should **not** be used in combination with a Dynamic Transactional Template, which can be identified by a `template_id` starting with `d-`. This field is a collection of key/value pairs following the pattern "substitution_tag":"value to substitute". The key/value pairs must be strings. These substitutions will apply to the text and html content of the body of your email, in addition to the `subject` and `reply-to` parameters. The total collective size of your substitutions may not exceed 10,000 bytes per personalization object.
+    </ResponseField>
+    <ResponseField name="custom_args" type="object">
+        Values that are specific to this personalization that will be carried along with the email and its activity data. Substitutions will not be made on custom arguments, so any string that is entered into this parameter will be assumed to be the custom argument that you would like to be used. This field may not exceed 10,000 bytes.
+    </ResponseField>
+    <ResponseField name="send_at" type="integer">
+        A unix timestamp allowing you to specify when your email should be delivered. Scheduling delivery more than 72 hours in advance is forbidden.
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+<ResponseField name="from" type="object">
+    <Expandable title="properties">
+    <ResponseField name="email" type="string">
+        The 'From' email address used to deliver the message. This address should be a verified sender in your Twilio SendGrid account.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+        A name or title associated with the sending email address.
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+<ResponseField name="reply_to" type="object">
+    <Expandable title="properties">
+    <ResponseField name="email" type="string">
+        The email address where any replies or bounces will be returned.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+        A name or title associated with the `reply_to` email address.
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+<ResponseField name="reply_to_list" type="array">
+    An array of recipients who will receive replies and/or bounces. Each object in this array must contain the recipient's email address. Each object in the array may optionally contain the recipient's name. You can either choose to use “reply_to” field or “reply_to_list” but not both.
+    <Expandable title="items">
+    <ResponseField name="email" type="string">
+        The email address where any replies or bounces will be returned.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+        A name or title associated with the `reply_to_list` email address.
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+<ResponseField name="subject" type="string">
+    The global or 'message level' subject of your email. This may be overridden by subject lines set in personalizations.
+</ResponseField>
+<ResponseField name="content" type="array">
+    An array where you can specify the content of your email. You can include multiple <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types">MIME types</a> of content, but you must specify at least one MIME type. To include more than one MIME type, add another object to the array containing the `type` and `value` parameters.
+    <Expandable title="items">
+    <ResponseField name="type" type="string">
+        The MIME type of the content you are including in your email (e.g., `“text/plain”` or `“text/html”`).
+    </ResponseField>
+    <ResponseField name="value" type="string">
+        The actual content of the specified MIME type that you are including in your email.
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+<ResponseField name="attachments" type="array">
+    An array of objects where you can specify any attachments you want to include.
+    <Expandable title="items">
+    <ResponseField name="content" type="string">
+        The Base64 encoded content of the attachment.
+    </ResponseField>
+    <ResponseField name="type" type="string">
+        The MIME type of the content you are attaching (e.g., `“text/plain”` or `“text/html”`).
+    </ResponseField>
+    <ResponseField name="filename" type="string">
+        The attachment's filename.
+    </ResponseField>
+    <ResponseField name="disposition" type="string">
+        The attachment's content-disposition, specifying how you would like the attachment to be displayed. For example, `“inline”` results in the attached file are displayed automatically within the message while `“attachment”` results in the attached file require some action to be taken before it is displayed, such as opening or downloading the file.
+    </ResponseField>
+    <ResponseField name="content_id" type="string">
+        The attachment's content ID. This is used when the disposition is set to `“inline”` and the attachment is an image, allowing the file to be displayed within the body of your email.
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+
+<ResponseField name="headers" type="object">
+    An object containing key/value pairs of header names and the value to substitute for them. The key/value pairs must be strings. You must ensure these are properly encoded if they contain unicode characters. These headers cannot be one of the reserved headers.
+</ResponseField>
+<ResponseField name="categories" type="array">
+    An array of category names for this message. Each category name may not exceed 255 characters.
+    <Expandable title="items">
+    <ResponseField name="category" type="string">
+        Category name.
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+<ResponseField name="custom_args" type="string">
+    Values that are specific to the entire send that will be carried along with the email and its activity data. Key/value pairs must be strings. Substitutions will not be made on custom arguments, so any string that is entered into this parameter will be assumed to be the custom argument that you would like to be used. This parameter is overridden by `custom_args` set at the personalizations level. Total `custom_args` size may not exceed 10,000 bytes.
+</ResponseField>
+<ResponseField name="send_at" type="integer">
+    A unix timestamp allowing you to specify when you want your email to be delivered. This may be overridden by the `send_at` parameter set at the personalizations level. Delivery cannot be scheduled more than 72 hours in advance. If you have the flexibility, it's better to schedule mail for off-peak times. Most emails are scheduled and sent at the top of the hour or half hour. Scheduling email to avoid peak times — for example, scheduling at 10:53 — can result in lower deferral rates due to the reduced traffic during off-peak times.
+</ResponseField>
+<ResponseField name="batch_id" type="string">
+    An ID representing a batch of emails to be sent at the same time. Including a `batch_id` in your request allows you include this email in that batch. It also enables you to cancel or pause the delivery of that batch. For more information, see the <a href="https://sendgrid.com/docs/api-reference/">Cancel Scheduled Sends API</a>.
+</ResponseField>
+<ResponseField name="asm" type="object">
+    An object allowing you to specify how to handle unsubscribes.
+    <Expandable title="properties">
+    <ResponseField name="group_id" type="integer">
+        The unsubscribe group to associate with this email.
+    </ResponseField>
+    <ResponseField name="groups_to_display" type="array">
+        An array containing the unsubscribe groups that you would like to be displayed on the unsubscribe preferences page.
+        <Expandable title="items">
+        <ResponseField name="group_id" type="integer">
+            Unsubscribe group ID.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+
+<ResponseField name="mail_settings" type="object">
+    A collection of different mail settings that you can use to specify how you would like this email to be handled.
+    <Expandable title="properties">
+    <ResponseField name="bypass_list_management" type="object">
+        Allows you to bypass all unsubscribe groups and suppressions to ensure that the email is delivered to every single recipient. This should only be used in emergencies when it is absolutely necessary that every recipient receives your email. This filter cannot be combined with any other bypass filters. See our <a href="https://sendgrid.com/docs/ui/sending-email/index-suppressions/#bypass-suppressions">documentation</a> for more about bypass filters.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="bypass_spam_management" type="object">
+        Allows you to bypass the spam report list to ensure that the email is delivered to recipients. Bounce and unsubscribe lists will still be checked; addresses on these other lists will not receive the message. This filter cannot be combined with the `bypass_list_management` filter. See our <a href="https://sendgrid.com/docs/ui/sending-email/index-suppressions/#bypass-suppressions">documentation</a> for more about bypass filters.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="bypass_bounce_management" type="object">
+        Allows you to bypass the bounce list to ensure that the email is delivered to recipients. Spam report and unsubscribe lists will still be checked; addresses on these other lists will not receive the message. This filter cannot be combined with the `bypass_list_management` filter. See our <a href="https://sendgrid.com/docs/ui/sending-email/index-suppressions/#bypass-suppressions">documentation</a> for more about bypass filters.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="bypass_unsubscribe_management" type="object">
+        Allows you to bypass the global unsubscribe list to ensure that the email is delivered to recipients. Bounce and spam report lists will still be checked; addresses on these other lists will not receive the message. This filter applies only to global unsubscribes and will not bypass group unsubscribes. This filter cannot be combined with the `bypass_list_management` filter. See our <a href="https://sendgrid.com/docs/ui/sending-email/index-suppressions/#bypass-suppressions">documentation</a> for more about bypass filters.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="footer" type="object">
+        The default footer that you would like included on every email.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        <ResponseField name="text" type="string">
+            The plain text content of your footer.
+        </ResponseField>
+        <ResponseField name="html" type="string">
+            The HTML content of your footer.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="sandbox_mode" type="object">
+        Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    </Expandable>
+</ResponseField>
+<ResponseField name="tracking_settings" type="object">
+    Settings to determine how you would like to track the metrics of how your recipients interact with your email.
+    <Expandable title="properties">
+    <ResponseField name="click_tracking" type="object">
+        Allows you to track if a recipient clicked a link in your email.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        <ResponseField name="enable_text" type="boolean">
+            Indicates if this setting should be included in the `text/plain` portion of your email.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="open_tracking" type="object">
+        Allows you to track if the email was opened by including a single pixel image in the body of the content. When the pixel is loaded, Twilio SendGrid can log that the email was opened.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        <ResponseField name="substitution_tag" type="string">
+            Allows you to specify a substitution tag that you can insert in the body of your email at a location that you desire. This tag will be replaced by the open tracking pixel.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="subscription_tracking" type="object">
+        Allows you to insert a subscription management link at the bottom of the text and HTML bodies of your email. If you would like to specify the location of the link within your email, you may use the `substitution_tag`.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        <ResponseField name="text" type="string">
+            Text to be appended to the email with the subscription tracking link. You may control where the link is by using the tag \<% %>.
+        </ResponseField>
+        <ResponseField name="html" type="string">
+            HTML to be appended to the email with the subscription tracking link. You may control where the link is by using the tag \<% %>.
+        </ResponseField>
+        <ResponseField name="substitution_tag" type="string">
+            A tag that will be replaced with the unsubscribe URL. for example: `[unsubscribe_url]`. If this parameter is used, it will override both the `text` and `html` parameters. The URL of the link will be placed at the substitution tag’s location with no additional formatting.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="ganalytics" type="object">
+        Allows you to enable tracking provided by Google Analytics.
+        <Expandable title="properties">
+        <ResponseField name="enable" type="boolean">
+            Indicates if this setting is enabled.
+        </ResponseField>
+        <ResponseField name="utm_source" type="string">
+            (e.g. Google, SomeDomain.com, or Marketing Email)
+        </ResponseField>
+        <ResponseField name="utm_medium" type="string">
+            Name of the marketing medium. (e.g. Email)
+        </ResponseField>
+        <ResponseField name="utm_term" type="string">
+            Used to identify any paid keywords.
+        </ResponseField>
+        <ResponseField name="utm_content" type="string">
+            Used to differentiate your campaign from advertisements.
+        </ResponseField>
+        <ResponseField name="utm_campaign" type="string">
+            The name of the campaign.
+        </ResponseField>
+        </Expandable>
+    </ResponseField>
+    </Expandable>
+</ResponseField>
