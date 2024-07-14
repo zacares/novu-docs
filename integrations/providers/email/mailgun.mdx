@@ -9,7 +9,7 @@ You can use the [Mailgun](https://mailgun.com/) provider to send transactional
 
 To use the Mailgun provider in the email channel, you will need to create a Mailgun account and add your API key and domain name to the Mailgun integration on the Novu platform.
 
-# Generating an API Key
+## Generating an API Key
 
 To generate a new API key in Mailgun, you can follow these steps:
 
@@ -17,7 +17,7 @@ To generate a new API key in Mailgun, you can follow these steps:
 - Click on the **Profile** section in the top right corner of the screen, and then click "API Keys" from the drop-down menu.
 - On the [API Keys](https://app.mailgun.com/app/account/security/api_keys) page, copy the generated **Private API Key**
 
-# Adding a new domain name
+## Adding a new domain name
 
 Mailgun recommends that you add a subdomain as a domain name. To do so:
 
@@ -25,7 +25,7 @@ Mailgun recommends that you add a subdomain as a domain name. To do so:
   - During this process, you will need to choose a region for the domain name which is between `US` and `EU`. The default is `US`.
 - Follow the [instructions](https://documentation.mailgun.com/en/latest/user_manual.html#verifying-your-domain-1) to verify the domain name.
 
-# Creating a Mailgun integration with Novu
+## Creating a Mailgun integration with Novu
 
 - Visit the [Integrations](https://dashboard.novu.co/integrations?utm_campaign=docs-mailgun) page on Novu.
 - Click on Add a Provider.
@@ -41,3 +41,90 @@ Mailgun recommends that you add a subdomain as a domain name. To do so:
 - Click on the `Disabled` button and mark it as `Active`.
 - Click on the **Update** button.
 - You should now be able to send notifications using Mailgun in Novu.
+
+## Mailgun SDK Overrides
+
+Novu allows you to leverage all of the custom SDK parameters that Mailgun provides. Here is the full list of supported overrides.
+
+To use the provider overrides, you can use the `providers` field in the `email` step.
+
+```typescript
+await step.email('email-step', () => {
+  return {
+    subject: 'Hello World',
+    body: 'Email body'
+  }
+}, {
+  providers: {
+    mailgun: ({ controls }) => {
+      return {
+        'o:testmode': 'yes'
+      }
+    }
+  }
+});
+```
+
+<Tip>
+  The properties in this list match the [Mailgun API schema](https://documentation.mailgun.com/en/latest/api-sending.html#sending).
+</Tip>
+
+<ResponseField name="o:tag" type="string or array">
+  Tag string. See Tagging for more information.
+</ResponseField>
+<ResponseField name="to" type="string or array">
+  Email address of the recipient(s). Example: "Bob bob@host.com". You can use commas to separate multiple recipients (e.g.: "test@example.com,test@example.com" or ["test@example.com", "test@example.com"]).
+</ResponseField>
+<ResponseField name="from" type="string" />
+<ResponseField name="subject" type="string">
+  Subject of the message.
+</ResponseField>
+<ResponseField name="text" type="string">
+  Text version of the message.
+</ResponseField>
+<ResponseField name="html" type="string">
+  HTML version of the message.
+</ResponseField>
+<ResponseField name="message" type="string">
+  MIME string of the message. Make sure to use multipart/form-data to send this as a file upload.
+</ResponseField>
+<ResponseField name="cc" type="string or array">
+  Same as To but for carbon copy.
+</ResponseField>
+<ResponseField name="bcc" type="string or array">
+  Same as To but for blind carbon copy.
+</ResponseField>
+<ResponseField name="amp-html" type="string" />
+<ResponseField name="t:version" type="string" />
+<ResponseField name="t:text" type="string or boolean">
+  Options: yes, no.
+</ResponseField>
+<ResponseField name="o:dkim" type="string or boolean">
+  Enables/disabled DKIM signatures on per-message basis. Pass yes or no.
+</ResponseField>
+<ResponseField name="o:deliverytime" type="string">
+  Desired time of delivery. See Date Format. Note: Messages can be scheduled for a maximum of 3 days in the future.
+</ResponseField>
+<ResponseField name="o:deliverytime-optimize-period" type="string" />
+<ResponseField name="o:time-zone-localize" type="string" />
+<ResponseField name="o:testmode" type="string or boolean">
+  Enables sending in test mode. Pass yes if needed. See Sending in Test Mode.
+</ResponseField>
+<ResponseField name="o:tracking" type="string or boolean">
+  Toggles tracking on a per-message basis, see Tracking Messages for details. Pass yes or no.
+</ResponseField>
+<ResponseField name="o:tracking-clicks" type="string or boolean">
+  Toggles clicks tracking on a per-message basis. Has higher priority than domain-level setting. Pass yes, no or htmlonly.
+</ResponseField>
+<ResponseField name="o:tracking-opens" type="string or boolean">
+  Toggles opens tracking on a per-message basis. Has higher priority than domain-level setting. Pass yes or no.
+</ResponseField>
+<ResponseField name="o:require-tls" type="string or boolean" />
+<ResponseField name="o:skip-verification" type="string or boolean" />
+<ResponseField name="recipient-variables" type="string" />
+<ResponseField name="h:X-My-Header" type="string">
+  h: prefix followed by an arbitrary value allows to append a custom MIME header to the message (X-My-Header in this case). For example, h:Reply-To to specify Reply-To address.
+</ResponseField>
+<ResponseField name="v:my-var" type="string">
+  v: prefix followed by an arbitrary name allows to attach a custom JSON data to the message. See Attaching Data to Messages for more information.
+</ResponseField>

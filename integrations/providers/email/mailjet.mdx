@@ -9,7 +9,7 @@ You can use the [Mailjet](https://mailjet.com/) provider to send transactional
 
 To use the Mailjet provider in the email channel, you will need to create a Mailjet account and add your API key to the Mailjet integration on the Novu platform.
 
-# Generating an API Key
+## Generating an API Key
 
 To generate a new API key in Mailjet, you can follow these steps:
 
@@ -19,7 +19,7 @@ To generate a new API key in Mailjet, you can follow these steps:
 - Give the API key a name and choose the access level **Write and Read**
 - Click the **Generate Key** button to create the new key. Once generated you can see the key but it will be hidden after the refresh
 
-# Authenticating your sender identity
+## Authenticating your sender identity
 
 Before you can send emails on a large scale, you will need to authenticate your Sender identity. This is due to the latest regulatory changes regarding SPAM rules and email fraud. Most of the providers including Mailjet require you to authenticate your Sender identity before you can send emails.
 
@@ -28,7 +28,7 @@ Mailjet allows you to authenticate your sender identity using one of the followi
 - [Single Sender Verification](https://dev.mailjet.com/email/guides/senders-and-domains/#sender-validation) - This is the easiest way to authenticate your sender identity.
 - [Entire Domain Authentication](https://dev.mailjet.com/email/guides/senders-and-domains/#spf-and-dkim-validation) - This is recommended if you are sending emails from multiple accounts under your domain.
 
-# Creating a Mailjet integration with Novu
+## Creating a Mailjet integration with Novu
 
 - Visit the [Integrations](https://dashboard.novu.co/integrations?utm_campaign=docs-mailjet) page on Novu.
 - Click on Add a Provider.
@@ -38,3 +38,102 @@ Mailjet allows you to authenticate your sender identity using one of the followi
 - Click on the `Disabled` button and mark it as `Active`.
 - Click on the **Update** button.
 - You should now be able to send notifications using Mailjet in Novu.
+
+## Mailjet SDK Overrides
+
+Novu allows you to leverage all of the custom SDK parameters that Mailjet provides. Here is the full list of supported overrides.
+
+```typescript
+await step.email('email-step', () => {
+  return {
+    subject: 'Hello World',
+    body: 'Email body'
+  }
+}, {
+  providers: {
+    mailjet: ({ controls }) => {
+      return {
+        TemplateID: 'TEMPLATE_ID'
+      }
+    }
+  }
+});
+```
+
+<Tip>
+    The properties in this list match the [Mailjet API schema](https://dev.mailjet.com/email/reference/send-emails).
+</Tip>
+
+<ResponseField name="From" type="object" required>
+<Expandable title="properties">
+    <ResponseField name="Name" type="string" />
+    <ResponseField name="Email" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="Sender" type="object">
+<Expandable title="properties">
+    <ResponseField name="Name" type="string" />
+    <ResponseField name="Email" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="To" type="array">
+<Expandable title="items">
+    <ResponseField name="Name" type="string" />
+    <ResponseField name="Email" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="Cc" type="array">
+<Expandable title="items">
+    <ResponseField name="Name" type="string" />
+    <ResponseField name="Email" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="Bcc" type="array">
+<Expandable title="items">
+    <ResponseField name="Name" type="string" />
+    <ResponseField name="Email" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="ReplyTo" type="object">
+<Expandable title="properties">
+    <ResponseField name="Name" type="string" />
+    <ResponseField name="Email" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="Subject" type="string" />
+<ResponseField name="TextPart" type="string" />
+<ResponseField name="HTMLPart" type="string" />
+<ResponseField name="TemplateID" type="number" />
+<ResponseField name="TemplateLanguage" type="boolean" />
+<ResponseField name="TemplateErrorReporting" type="object">
+<Expandable title="properties">
+    <ResponseField name="Name" type="string" />
+    <ResponseField name="Email" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="TemplateErrorDeliver" type="boolean" />
+<ResponseField name="Attachments" type="array">
+<Expandable title="items">
+    <ResponseField name="ContentType" type="string" required />
+    <ResponseField name="Filename" type="string" required />
+    <ResponseField name="Base64Content" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="InlineAttachments" type="array">
+<Expandable title="items">
+    <ResponseField name="Filename" type="string" required />
+    <ResponseField name="ContentType" type="string" required />
+    <ResponseField name="ContentID" type="string" />
+    <ResponseField name="Base64Content" type="string" required />
+</Expandable>
+</ResponseField>
+<ResponseField name="Priority" type="number" />
+<ResponseField name="CustomCampaign" type="string" />
+<ResponseField name="DeduplicateCampaign" type="boolean" />
+<ResponseField name="TrackOpens" type="string" enum={['account_default', 'disabled', 'enabled']} />
+<ResponseField name="TrackClicks" type="string" enum={['account_default', 'disabled', 'enabled']} />
+<ResponseField name="CustomID" type="string" />
+<ResponseField name="EventPayload" type="string" />
+<ResponseField name="URLTags" type="string" />
+<ResponseField name="Headers" type="object" />
+<ResponseField name="Variables" type="object" />
